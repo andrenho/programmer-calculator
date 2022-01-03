@@ -27,19 +27,19 @@ ATMEGA16 connections:
 |-----|-----|
 | PA0..7 | Keyboard matrix 1 |
 | PC0..7 | Keyboard matrix 2 |
-| PB0 |
-| PB1 |
-| PB2 |
-| PB3 |
-| PB4 |
-| PB5 |
-| PB6 |
-| PB7 |
-| PD0 |
-| PD1 |
-| PD2 |
-| PD3 |
-| PD4 |
-| PD5 |
-| PD6 |
-| PD7 |
+| PB0 | BIN0 |
+| PB1 | BIN1 |
+| PB2 | BIN2 |
+| PB3 | HOLD BTN |
+| PB4 | OFF BTN |
+| PB5 | LED DEC / MOSI |
+| PB6 | LED HEX / MISO |
+| PB7 | LED BIN / SCK  |
+| PD0 | RX |
+| PD1 | TX |
+| PD2 | LCD E  |
+| PD3 | LCD RS |
+| PD4 | LCD D4 |
+| PD5 | LCD D5 |
+| PD6 | LCD D6 |
+| PD7 | LCD D7 |
