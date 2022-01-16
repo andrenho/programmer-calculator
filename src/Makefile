@@ -1,8 +1,8 @@
 # Project name
-PROJECT=avr-skeleton
+PROJECT=progcalc
 
 # Object files (one for each source file)
-OBJECTS=main.o uart.o
+OBJECTS=main.o uart.o display.o
 
 # Avrdude configuration to connect on the PI. See avrdude_gpio.conf.
 # Can be one of: pi_rst, pi_cs0, pi_cs1 or pi_gpio, depending on the RESET line in AVR.
@@ -31,7 +31,8 @@ WARNINGS=-Wall -Wextra \
 	 -Wformat=2 -Wno-unused-parameter -Wshadow \
 	 -Wwrite-strings -Wstrict-prototypes -Wold-style-definition \
 	 -Wredundant-decls -Wnested-externs -Wmissing-include-dirs -Wjump-misses-init -Wlogical-op
-CPPFLAGS=-std=c11 ${WARNINGS} -Os -DF_CPU=${F_CPU} -DBAUD=${BAUD} -mmcu=${MCU_GCC} -ffunction-sections -fdata-sections -mcall-prologues
+CPPFLAGS=-std=c11 ${WARNINGS} -Os -DF_CPU=${F_CPU} -DBAUD=${BAUD} -mmcu=${MCU_GCC}\
+	 -ffunction-sections -fdata-sections -mcall-prologues -D_LCD_DEFINITIONS_FILE
 
 all: ${PROJECT}.hex
 

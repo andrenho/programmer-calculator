@@ -1,12 +1,11 @@
-#include <stdio.h>
+#include "display.h"
 
-#include <avr/pgmspace.h>
-
-#include "uart.h"
+#include <util/delay.h>
 
 int main(void)
 {
-    uart_init();
-    puts_P(PSTR("Hello world!"));
-    return 0;
+    _delay_ms(50);
+    display_init();
+
+    for(;;);
 }
