@@ -40,9 +40,15 @@ void display_init(void)
     // initialize LCD
     send_command(0, 0b0010);   // set to 4-bit operation
 	_delay_ms(4);
+    send_command(0, 0b0010);
+	_delay_ms(4);
+    send_command(0, 0b0010);
+	_delay_ms(4);
+    send_command(0, 0b0010);
+	_delay_ms(4);
     send_command_8(0, 0b00101000);   // function set: 4 bits, 2 lines, 5x11 font
 	_delay_ms(4);
-    send_command_8(0, 0b00001110);   // display/cursor on
+    send_command_8(0, 0b00001100);   // display/cursor on
 	_delay_ms(4);
     send_command_8(0, 0b00000110);   // entry mode
 	_delay_ms(4);
@@ -58,33 +64,21 @@ void display_set_value(int64_t new_value)
 		send_command_8(0, 0b00000001);   // clear screen
 		_delay_ms(2);
 
-		send_command_8(1, 'A');
-
-		send_command_8(0, 0xa9);
-		_delay_ms(2);
-
-		send_command_8(1, 'B');
-
-		/*
-		send_command_8(0, 0b10000000 + 0x40);
-		_delay_ms(2);
-		*/
-
-		/*
+		// print first line
 		char val[17];
-		snprintf(val, 17, "%-16d", value);
-		for (int i = 15; i >= 0; --i) {
+		snprintf(val, 17, "%15d ", value);
+		for (int i = 0; i < 16; ++i) {
 			send_command_8(1, val[i]);
 			_delay_us(40);
 		}
 
-		send_command_8(0, 0b10000000 + 40);
+		// print second line
+		send_command_8(0, 0b10000000 + 0x40);
 
-		snprintf(val, 17, "%-15Xh", value);
-		for (int i = 15; i >= 0; --i) {
+		snprintf(val, 17, "%15Xh", value);
+		for (int i = 0; i < 16; ++i) {
 			send_command_8(1, val[i]);
 			_delay_us(40);
 		}
-		*/
 	}
 }
