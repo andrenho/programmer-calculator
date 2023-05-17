@@ -60,7 +60,7 @@ void display_set_value(int64_t new_value)
 
 		send_command_8(1, 'A');
 
-		send_command_8(0, 0xc0);
+		send_command_8(0, 0xa9);
 		_delay_ms(2);
 
 		send_command_8(1, 'B');
