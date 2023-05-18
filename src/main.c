@@ -1,5 +1,6 @@
 #include "display.h"
 #include "keyboard.h"
+#include "leds.h"
 
 #include <util/delay.h>
 
@@ -10,6 +11,7 @@ int main(void)
     // initialize everything
     display_init();
 	keyboard_init();
+	leds_init();
 
 	// main loop
     for(;;) {
