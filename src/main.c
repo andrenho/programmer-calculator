@@ -18,7 +18,9 @@ int main(void)
 	// main loop
     for(;;) {
 		int16_t key = keyboard_key_pressed();
-		if (key != -1)
+		if (key != -1) {
 			display_set_value(key);
+			matrix_set_value(key);
+		}
 	}
 }

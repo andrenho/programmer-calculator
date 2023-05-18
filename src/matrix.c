@@ -45,14 +45,28 @@ static void send_word(uint8_t address, uint8_t data)
     MAX7219_CLK_LO();       // Set CLK to LOW
 }
 
+static void matrix_row(uint8_t address, uint8_t data)
+{
+	if (address < 8)
+		send_word(address + 1, data);
+}
+
 void matrix_init(void)
 {
 	DDRB |= (1 << MAX7219_CLK);   // Set CLK port as output
     DDRB |= (1 << MAX7219_CS);    // Set CS port as output
     DDRB |= (1 << MAX7219_DIN);   // Set DIN port as output
-    for (uint8_t i = 0; i < sizeof (max7219_initseq);) {
+    
+	// initialization
+	for (uint8_t i = 0; i < sizeof (max7219_initseq);) {
         uint8_t opcode = pgm_read_byte(&max7219_initseq[i++]);
         uint8_t opdata = pgm_read_byte(&max7219_initseq[i++]);
         send_word(opcode, opdata);
     }
+
+	matrix_set_value(0);
+}
+
+void matrix_set_value(int64_t value)
+{
 }
