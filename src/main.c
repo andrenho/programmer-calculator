@@ -1,6 +1,7 @@
 #include "display.h"
 #include "keyboard.h"
 #include "leds.h"
+#include "matrix.h"
 
 #include <util/delay.h>
 
@@ -12,6 +13,7 @@ int main(void)
     display_init();
 	keyboard_init();
 	leds_init();
+	matrix_init();
 
 	// main loop
     for(;;) {
