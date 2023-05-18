@@ -17,7 +17,7 @@
 
 const uint8_t max7219_initseq[] PROGMEM = {
 	0x09, 0x00,	// Decode-Mode Register, 00 = No decode
-	0x0a, 0x00,	// Intensity Register, 0x00 .. 0x0f
+	0x0a, 0x01,	// Intensity Register, 0x00 .. 0x0f
 	0x0b, 0x07,	// Scan-Limit Register, 0x07 to show all lines
 	0x0c, 0x01,	// Shutdown Register, 0x01 = Normal Operation
 	0x0f, 0x00,	// Display-Test Register, 0x01, 0x00 = Normal
@@ -69,4 +69,15 @@ void matrix_init(void)
 
 void matrix_set_value(int64_t value)
 {
+	for (uint8_t i = 0; i < 8; ++i) {
+		uint8_t v = (((value >> (0 + i)) & 1) << 7)
+			      | (((value >> (8 + i)) & 1) << 6)
+			      | (((value >> (16 + i)) & 1) << 5)
+			      | (((value >> (24 + i)) & 1) << 4)
+			      | (((value >> (32 + i)) & 1) << 3)
+			      | (((value >> (40 + i)) & 1) << 2)
+			      | (((value >> (48 + i)) & 1) << 1)
+			      | (((value >> (52 + i)) & 1) << 0);
+		matrix_row(7 - i, v);
+	}
 }

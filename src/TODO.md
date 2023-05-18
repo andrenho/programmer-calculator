@@ -1,7 +1,0 @@
-- [ ] Implement display basics
-- [ ] Implement binary display basic
-- [ ] Implement keyboard logic
-- [ ] Test power
-- [ ] Add RTOS (?)
-- [ ] Build
-- [ ] Implement logic

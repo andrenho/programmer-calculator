@@ -1,0 +1,21 @@
+Functions:
+
+ +   7   8   9       BS   A   B   C 
+ -   4   5   6       NOT  D   E   F 
+ *   1   2   3       AND  OR XOR SZ 
+ /  +/-  0   =       CLR MOD FUN INP 
+
+With function key?
+
+					 M+  MR  MC  ???
+					 <<  >>  ROL ROR
+					NAND NOR XNOR ??
+					 ??? ??? FUN INP 
+
+On the display:
+
+[Current operation] [Decimal value]
+[Mode]              [Hexadecimal value] [h]
+
+Maximum value: dec 999999999999999  (15 digits)
+               hex 38D7EA4C67FFF    (13 digits)
