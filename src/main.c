@@ -1,4 +1,5 @@
 #include "display.h"
+#include "keyboard.h"
 
 #include <util/delay.h>
 
@@ -8,10 +9,12 @@ int main(void)
 
     // initialize everything
     display_init();
+	keyboard_init();
 
 	// main loop
     for(;;) {
-		// TODO - check for keypress
-		// TODO - update value
+		int16_t key = keyboard_key_pressed();
+		if (key != -1)
+			display_set_value(key);
 	}
 }
