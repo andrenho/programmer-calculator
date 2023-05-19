@@ -58,6 +58,7 @@ static int64_t current = 0;
 static Mode    mode = DEC;
 static bool    function = false;
 static uint8_t size = 8;
+static bool    sign = true;
 
 void interface_init(void)
 {
@@ -65,20 +66,28 @@ void interface_init(void)
 
 static void add_digit(int8_t n)
 {
-	// TODO - check size
-	// TODO - check for zero
+	int64_t new_value;
 	switch (mode) {
 		case DEC:
 			if (n <= 9)
-				current = (current * 10) + n;
+				new_value = (current * 10) + n;
 			break;
 		case HEX:
-			current = (current * 0x10) + n;
+			new_value = (current * 0x10) + n;
 			break;
 		case BIN:
 			if (n <= 1)
-				current = (current * 0b10) + n;
+				new_value = (current * 0b10) + n;
 			break;
+	}
+}
+
+static void backspace(void)
+{
+	switch (mode) {
+		case DEC: current /= 10; break;
+		case HEX: current /= 0x10; break;
+		case BIN: current /= 0b10; break;
 	}
 }
 
@@ -93,10 +102,10 @@ static void change_mode(void)
 static void change_size(void)
 {
 	switch (size) {
-		case 1: size = 2; break;
-		case 2: size = 4; break;
-		case 4: size = 8; break;
-		case 8: size = 1; break;
+		case 8: size = 4; break;
+		case 4: size = 2; break;
+		case 2: size = 1; break;
+		case 1: size = 8; sign = !sign; break;
 	}
 }
 
@@ -119,6 +128,7 @@ void interface_key_pressed(int8_t key)
 		case K_D:    add_digit(0xd); break;
 		case K_E:    add_digit(0xe); break;
 		case K_F:    add_digit(0xf); break;
+		case K_BS:   backspace(); break;
 		case K_MODE: change_mode(); break;
 		case K_SZ:   change_size(); break;
 		case K_FUN:  function = !function; break;
@@ -150,7 +160,9 @@ void interface_display(char line[2][16])
 		case 1: line[1][0] = 'b'; break;
 		case 2: line[1][0] = 'w'; break;
 		case 4: line[1][0] = 'd'; break;
+		case 8: line[1][0] = 'q'; break;
 	}
+	line[1][1] = sign ? 0b11101001 : ' ';  // (-1 character)
 }
 
 int64_t interface_value(void)

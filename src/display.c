@@ -51,34 +51,6 @@ void display_init(void)
 	_delay_ms(4);
 }
 
-/*
-void display_set_value(int64_t new_value)
-{
-	if (new_value != value) {
-		value = new_value;
-
-		send_command_8(0, 0b00000001);   // clear screen
-		_delay_ms(2);
-
-		// print first line
-		char val[17];
-		snprintf(val, 17, "%15d ", value);
-		for (int i = 0; i < 16; ++i) {
-			send_command_8(1, val[i]);
-			_delay_us(40);
-		}
-
-		// print second line
-		send_command_8(0, 0b10000000 + 0x40);
-
-		snprintf(val, 17, "%15Xh", value);
-		for (int i = 0; i < 16; ++i) {
-			send_command_8(1, val[i]);
-			_delay_us(40);
-		}
-	}
-}
-*/
 
 void display_set_lines(const char lines[2][16])
 {
