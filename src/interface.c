@@ -1,6 +1,6 @@
 #include "interface.h"
 
-#include <inttypes.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -38,7 +38,7 @@ typedef enum Key {
 	K_C      = 28,
 	K_F      = 29,
 	K_SZ     = 30,
-	K_INP    = 31,
+	K_MODE   = 31,
 
 	// function keys (F2)
 	K_M      = 16,
@@ -56,6 +56,7 @@ typedef enum Key {
 static int64_t reg = 0;
 static int64_t current = 0;
 static Mode    mode = DEC;
+static bool    function = false;
 
 void interface_init(void)
 {
@@ -67,15 +68,25 @@ static void add_digit(int8_t n)
 	// TODO - check for zero
 	switch (mode) {
 		case DEC:
-			current = (current * 10) + n;
+			if (n <= 9)
+				current = (current * 10) + n;
 			break;
 		case HEX:
 			current = (current * 0x10) + n;
 			break;
 		case BIN:
-			current = (current * 0b10) + n;
+			if (n <= 1)
+				current = (current * 0b10) + n;
 			break;
 	}
+}
+
+static void change_mode()
+{
+	mode += 1;
+	if (mode > BIN)
+		mode = DEC;
+	current = 0;
 }
 
 void interface_key_pressed(int8_t key)
@@ -91,6 +102,14 @@ void interface_key_pressed(int8_t key)
 		case K_7: add_digit(7); break;
 		case K_8: add_digit(8); break;
 		case K_9: add_digit(9); break;
+		case K_A: add_digit(0xa); break;
+		case K_B: add_digit(0xb); break;
+		case K_C: add_digit(0xc); break;
+		case K_D: add_digit(0xd); break;
+		case K_E: add_digit(0xe); break;
+		case K_F: add_digit(0xf); break;
+		case K_MODE: change_mode(); break;
+		case K_FUN: function = !function; break;
 	}
 }
 
@@ -111,6 +130,9 @@ void interface_display(char line[2][16])
 	if ((current >> 32) != 0)
 		snprintf(line[1], 8, " %6lX", current >> 32);
 	snprintf(&line[1][7], 10, "%8lXh", current & 0xffffffff);
+
+	if (function)
+		line[0][0] = 'f';
 }
 
 int64_t interface_value(void)
