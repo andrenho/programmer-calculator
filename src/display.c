@@ -38,24 +38,20 @@ void display_init(void)
     set_DATA(0);
 
     // initialize LCD
-    send_command(0, 0b0010);   // set to 4-bit operation
-	_delay_ms(4);
-    send_command(0, 0b0010);
-	_delay_ms(4);
-    send_command(0, 0b0010);
-	_delay_ms(4);
-    send_command(0, 0b0010);
-	_delay_ms(4);
+	for (int i = 0; i < 4; ++i) {
+		send_command(0, 0b0010);   // set to 4-bit operation
+		_delay_ms(4);
+	}
+
     send_command_8(0, 0b00101000);   // function set: 4 bits, 2 lines, 5x11 font
 	_delay_ms(4);
     send_command_8(0, 0b00001100);   // display/cursor on
 	_delay_ms(4);
     send_command_8(0, 0b00000110);   // entry mode
 	_delay_ms(4);
-
-	display_set_value(0);
 }
 
+/*
 void display_set_value(int64_t new_value)
 {
 	if (new_value != value) {
@@ -81,4 +77,16 @@ void display_set_value(int64_t new_value)
 			_delay_us(40);
 		}
 	}
+}
+*/
+
+void display_set_lines(const char lines[2][16])
+{
+	send_command_8(0, 0b10000000);
+	for (uint8_t col = 0; col < 16; ++col)
+		send_command_8(1, lines[0][col]);
+
+	send_command_8(0, 0b10000000 + 0x40);
+	for (uint8_t col = 0; col < 16; ++col)
+		send_command_8(1, lines[1][col]);
 }

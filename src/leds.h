@@ -1,9 +1,9 @@
 #ifndef LEDS_H_
 #define LEDS_H_
 
-typedef enum { DEC, HEX, BIN } Led;
+#include "mode.h"
 
 void leds_init(void);
-void leds_set(Led led);
+void leds_set(Mode mode);
 
 #endif

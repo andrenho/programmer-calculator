@@ -9,11 +9,11 @@ void leds_init(void)
 	leds_set(DEC);
 }
 
-void leds_set(Led led)
+void leds_set(Mode mode)
 {
 	PORTB &= ~((1 << 3) | (1 << 4));
 	PORTD &= ~(1 << 0);
-	switch (led) {
+	switch (mode) {
 		case DEC:
 			PORTB |= (1 << 4);
 			break;
