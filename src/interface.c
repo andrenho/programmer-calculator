@@ -159,17 +159,42 @@ static void change_size(void)
 	current = 0;
 }
 
+static int64_t limit_value(int64_t value)
+{
+	switch (size) {
+		case 1: return value & 0xff;
+		case 2: return value & 0xffff;
+		case 4: return value & 0xffffffff;
+		case 8: return value % max_value;
+	}
+}
+
 static int64_t execute_last_operation(void)
 {
 	switch (operation) {
-		case O_NOP: return current;
-		case O_ADD: return reg + current;
+		case O_NOP:  return current;
+		case O_ADD:  return reg + current;
+		case O_SUB:  return reg - current;
+		case O_MUL:  return reg * current;
+		case O_DIV:  return reg / current;
+		case O_AND:  return reg & current;
+		case O_OR:   return reg | current;
+		case O_XOR:  return reg ^ current;
+		case O_MOD:  return reg % current;
+		case O_LSH:  return reg << current;
+		case O_RSH:  return reg >> current;
+		case O_ROL:  return 0; // TODO
+		case O_ROR:  return 0; // TODO
+		case O_NAND: return ~(reg & current);
+		case O_NOR:  return ~(reg | current);
+		case O_XNOR: return ~(reg ^ current);
 	}
 }
 
 static void add_operation(Operation op)
 {
-	reg = execute_last_operation();
+	reg = limit_value(execute_last_operation());
+	current = reg;
 	operation = op;
 	reset_display = true;
 }
@@ -196,7 +221,7 @@ void interface_key_pressed(int8_t key)
 			case K_F:      add_digit(0xf); break;
 			case K_BS:     backspace(); break;
 			case K_SZ:     change_size(); break;
-			case K_CLR:    current = 0; break;
+			case K_CLR:    current = 0; operation = O_NOP; break;
 			case K_NOT:    current = ~current; break;
 			case K_SIGN:   current = -current; break;
 			case K_PLUS:   add_operation(O_ADD); break;
@@ -208,6 +233,8 @@ void interface_key_pressed(int8_t key)
 			case K_MOD:    add_operation(O_MOD); break;
 			case K_XOR:    add_operation(O_XOR); break;
 			case K_EQUALS: add_operation(O_NOP); break;
+			case K_FUN:  function = !function; break;
+			default: break;
 		}
 	} else if (function) {
 		switch ((Key) key) {
@@ -221,13 +248,14 @@ void interface_key_pressed(int8_t key)
 			case K_NAND:  add_operation(O_NAND); break;
 			case K_NOR:   add_operation(O_NOR); break;
 			case K_XNOR:  add_operation(O_XNOR); break;
+			default: break;
 		}
 		function = false;
 	}
 
 	switch ((Key) key) {
-		case K_FUN:  function = !function; break;
 		case K_MODE: change_mode(); break;
+		default: break;
 	}
 
 }
