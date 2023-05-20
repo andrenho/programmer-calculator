@@ -134,30 +134,42 @@ static void change_size(void)
 
 void interface_key_pressed(int8_t key)
 {
-	switch ((Key) key) {
-		case K_0:    add_digit(0); break;
-		case K_1:    add_digit(1); break;
-		case K_2:    add_digit(2); break;
-		case K_3:    add_digit(3); break;
-		case K_4:    add_digit(4); break;
-		case K_5:    add_digit(5); break;
-		case K_6:    add_digit(6); break;
-		case K_7:    add_digit(7); break;
-		case K_8:    add_digit(8); break;
-		case K_9:    add_digit(9); break;
-		case K_A:    add_digit(0xa); break;
-		case K_B:    add_digit(0xb); break;
-		case K_C:    add_digit(0xc); break;
-		case K_D:    add_digit(0xd); break;
-		case K_E:    add_digit(0xe); break;
-		case K_F:    add_digit(0xf); break;
-		case K_BS:   backspace(); break;
-		case K_MODE: change_mode(); break;
-		case K_SZ:   change_size(); break;
-		case K_FUN:  function = !function; break;
-		case K_CLR:  current = 0; break;
-		case K_NOT:  current = ~current; break;
+	if (!function) {
+		switch ((Key) key) {
+			case K_0:    add_digit(0); break;
+			case K_1:    add_digit(1); break;
+			case K_2:    add_digit(2); break;
+			case K_3:    add_digit(3); break;
+			case K_4:    add_digit(4); break;
+			case K_5:    add_digit(5); break;
+			case K_6:    add_digit(6); break;
+			case K_7:    add_digit(7); break;
+			case K_8:    add_digit(8); break;
+			case K_9:    add_digit(9); break;
+			case K_A:    add_digit(0xa); break;
+			case K_B:    add_digit(0xb); break;
+			case K_C:    add_digit(0xc); break;
+			case K_D:    add_digit(0xd); break;
+			case K_E:    add_digit(0xe); break;
+			case K_F:    add_digit(0xf); break;
+			case K_BS:   backspace(); break;
+			case K_SZ:   change_size(); break;
+			case K_CLR:  current = 0; break;
+			case K_NOT:  current = ~current; break;
+		}
+	} else if (function) {
+		switch ((Key) key) {
+			case K_M: memory += current; function = false; break;
+			case K_MR: current = memory; function = false; break;
+			case K_MC: memory= 0; function = false; break;
+		}
 	}
+
+	switch ((Key) key) {
+		case K_FUN:  function = !function; break;
+		case K_MODE: change_mode(); break;
+	}
+
 }
 
 void interface_display(char line[2][16])
@@ -190,6 +202,9 @@ void interface_display(char line[2][16])
 			snprintf(&line[1][7], 10, "%8lXh", (uint32_t) current);
 			break;
 	}
+
+	if (memory != 0)
+		line[0][0] = 0b11101011;  // memory symbol
 
 	if (function)
 		line[0][0] = 'f';
