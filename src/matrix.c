@@ -63,11 +63,9 @@ void matrix_init(void)
         uint8_t opdata = pgm_read_byte(&max7219_initseq[i++]);
         send_word(opcode, opdata);
     }
-
-	matrix_set_value(0);
 }
 
-void matrix_set_value(int64_t value)
+void matrix_set_value(int64_t value, uint8_t size)
 {
 	for (uint8_t i = 0; i < 8; ++i) {
 		uint8_t v = (((value >> (0 + i)) & 1) << 7)
@@ -78,6 +76,17 @@ void matrix_set_value(int64_t value)
 			      | (((value >> (40 + i)) & 1) << 2)
 			      | (((value >> (48 + i)) & 1) << 1)
 			      | (((value >> (52 + i)) & 1) << 0);
+		switch (size) {
+			case 1:
+				v &= 0b10000000;
+				break;
+			case 2:
+				v &= 0b11000000;
+				break;
+			case 4:
+				v &= 0b11110000;
+				break;
+		}
 		matrix_row(7 - i, v);
 	}
 }

@@ -2,6 +2,7 @@
 
 #include <stdbool.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 typedef enum Key {
@@ -156,6 +157,7 @@ void interface_key_pressed(int8_t key)
 			case K_SZ:   change_size(); break;
 			case K_CLR:  current = 0; break;
 			case K_NOT:  current = ~current; break;
+			case K_SIGN: current = -current; break;
 		}
 	} else if (function) {
 		switch ((Key) key) {
@@ -178,13 +180,15 @@ void interface_display(char line[2][16])
 	memset(line[1], ' ', 16);
 	line[0][15] = '0';
 
-	int64_t v = current % max_value;
+	int64_t v = abs(current % max_value);
 	uint8_t pos = 15;
 	while (v != 0) {
 		int m = v % 10;
 		line[0][pos--] = m + '0';
 		v /= 10;
 	}
+	if (current < 0)
+		line[0][pos] = '-';
 
 	switch (size) {
 		case 1:
@@ -225,4 +229,9 @@ int64_t interface_value(void)
 Mode interface_mode(void)
 {
 	return mode;
+}
+
+uint8_t interface_size(void)
+{
+	return size;
 }

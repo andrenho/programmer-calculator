@@ -11,7 +11,7 @@ static void update_displays(void)
 	char lines[2][16];
 	interface_display(lines);
 	display_set_lines(lines);
-	matrix_set_value(interface_value());
+	matrix_set_value(interface_value(), interface_size());
 	leds_set(interface_mode());
 }
 
