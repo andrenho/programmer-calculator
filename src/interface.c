@@ -55,9 +55,12 @@ typedef enum Key {
 
 static int64_t reg = 0;
 static int64_t current = 0;
+static int64_t memory = 0;
 static Mode    mode = DEC;
 static bool    function = false;
 static uint8_t size = 8;
+
+static const int64_t max_value = 999999999999999;
 
 void interface_init(void)
 {
@@ -95,7 +98,8 @@ static void add_digit(int8_t n)
 				current = new_value;
 			break;
 		case 8:
-			current = new_value;
+			if (new_value >= -max_value && new_value <= max_value)
+				current = new_value;
 			break;
 	}
 }
@@ -152,6 +156,7 @@ void interface_key_pressed(int8_t key)
 		case K_SZ:   change_size(); break;
 		case K_FUN:  function = !function; break;
 		case K_CLR:  current = 0; break;
+		case K_NOT:  current = ~current; break;
 	}
 }
 
@@ -161,7 +166,7 @@ void interface_display(char line[2][16])
 	memset(line[1], ' ', 16);
 	line[0][15] = '0';
 
-	int64_t v = current;
+	int64_t v = current % max_value;
 	uint8_t pos = 15;
 	while (v != 0) {
 		int m = v % 10;
