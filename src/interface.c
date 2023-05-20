@@ -64,8 +64,8 @@ typedef enum Operation {
 	O_OR,
 	O_XOR,
 	O_MOD,
-	O_SHL,
-	O_SHR,
+	O_LSH,
+	O_RSH,
 	O_ROL,
 	O_ROR,
 	O_NAND,
@@ -159,8 +159,17 @@ static void change_size(void)
 	current = 0;
 }
 
+static int64_t execute_last_operation(void)
+{
+	switch (operation) {
+		case O_NOP: return current;
+		case O_ADD: return reg + current;
+	}
+}
+
 static void add_operation(Operation op)
 {
+	reg = execute_last_operation();
 	operation = op;
 	reset_display = true;
 }
@@ -169,35 +178,51 @@ void interface_key_pressed(int8_t key)
 {
 	if (!function) {
 		switch ((Key) key) {
-			case K_0:    add_digit(0); break;
-			case K_1:    add_digit(1); break;
-			case K_2:    add_digit(2); break;
-			case K_3:    add_digit(3); break;
-			case K_4:    add_digit(4); break;
-			case K_5:    add_digit(5); break;
-			case K_6:    add_digit(6); break;
-			case K_7:    add_digit(7); break;
-			case K_8:    add_digit(8); break;
-			case K_9:    add_digit(9); break;
-			case K_A:    add_digit(0xa); break;
-			case K_B:    add_digit(0xb); break;
-			case K_C:    add_digit(0xc); break;
-			case K_D:    add_digit(0xd); break;
-			case K_E:    add_digit(0xe); break;
-			case K_F:    add_digit(0xf); break;
-			case K_BS:   backspace(); break;
-			case K_SZ:   change_size(); break;
-			case K_CLR:  current = 0; break;
-			case K_NOT:  current = ~current; break;
-			case K_SIGN: current = -current; break;
-			case K_PLUS: add_operation(O_ADD); break;
+			case K_0:      add_digit(0); break;
+			case K_1:      add_digit(1); break;
+			case K_2:      add_digit(2); break;
+			case K_3:      add_digit(3); break;
+			case K_4:      add_digit(4); break;
+			case K_5:      add_digit(5); break;
+			case K_6:      add_digit(6); break;
+			case K_7:      add_digit(7); break;
+			case K_8:      add_digit(8); break;
+			case K_9:      add_digit(9); break;
+			case K_A:      add_digit(0xa); break;
+			case K_B:      add_digit(0xb); break;
+			case K_C:      add_digit(0xc); break;
+			case K_D:      add_digit(0xd); break;
+			case K_E:      add_digit(0xe); break;
+			case K_F:      add_digit(0xf); break;
+			case K_BS:     backspace(); break;
+			case K_SZ:     change_size(); break;
+			case K_CLR:    current = 0; break;
+			case K_NOT:    current = ~current; break;
+			case K_SIGN:   current = -current; break;
+			case K_PLUS:   add_operation(O_ADD); break;
+			case K_MINUS:  add_operation(O_SUB); break;
+			case K_MUL:    add_operation(O_MUL); break;
+			case K_DIV:    add_operation(O_DIV); break;
+			case K_AND:    add_operation(O_AND); break;
+			case K_OR:     add_operation(O_OR); break;
+			case K_MOD:    add_operation(O_MOD); break;
+			case K_XOR:    add_operation(O_XOR); break;
+			case K_EQUALS: add_operation(O_NOP); break;
 		}
 	} else if (function) {
 		switch ((Key) key) {
 			case K_M: memory += current; function = false; break;
 			case K_MR: current = memory; function = false; break;
 			case K_MC: memory= 0; function = false; break;
+			case K_LSH:   add_operation(O_LSH); break;
+			case K_RSH:   add_operation(O_RSH); break;
+			case K_ROL:   add_operation(O_ROL); break;
+			case K_ROR:   add_operation(O_ROR); break;
+			case K_NAND:  add_operation(O_NAND); break;
+			case K_NOR:   add_operation(O_NOR); break;
+			case K_XNOR:  add_operation(O_XNOR); break;
 		}
+		function = false;
 	}
 
 	switch ((Key) key) {
@@ -243,9 +268,6 @@ void interface_display(char line[2][16])
 	if (memory != 0)
 		line[0][0] = 0b11101011;  // memory symbol
 
-	if (function)
-		line[0][0] = 'f';
-
 	switch (operation) {
 		case O_ADD:  line[0][0] = '+'; break;
 		case O_SUB:  line[0][0] = '-'; break;
@@ -255,14 +277,17 @@ void interface_display(char line[2][16])
 		case O_OR:   line[0][0] = '|'; break;
 		case O_XOR:  line[0][0] = '^'; break;
 		case O_MOD:  line[0][0] = '%'; break;
-		case O_SHL:  line[0][0] = '<'; break;
-		case O_SHR:  line[0][0] = '>'; break;
+		case O_LSH:  line[0][0] = '<'; break;
+		case O_RSH:  line[0][0] = '>'; break;
 		case O_ROL:  line[0][0] = 0b01111111; break;
 		case O_ROR:  line[0][0] = 0b01111110; break;
 		case O_NAND: line[0][0] = '!'; break;
 		case O_NOR:  line[0][0] = 0b11001110; break;
-		case O_XNOR: line[0][0] = 0b10010111; break;
+		case O_XNOR: line[0][0] = 0b10110111; break;
 	}
+
+	if (function)
+		line[0][0] = 'f';
 
 	switch (size) {
 		case 1: line[1][0] = 'b'; break;
