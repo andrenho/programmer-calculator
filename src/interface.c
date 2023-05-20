@@ -58,7 +58,6 @@ static int64_t current = 0;
 static Mode    mode = DEC;
 static bool    function = false;
 static uint8_t size = 8;
-static bool    sign = true;
 
 void interface_init(void)
 {
@@ -66,7 +65,8 @@ void interface_init(void)
 
 static void add_digit(int8_t n)
 {
-	int64_t new_value;
+	int64_t new_value = current;
+
 	switch (mode) {
 		case DEC:
 			if (n <= 9)
@@ -78,6 +78,24 @@ static void add_digit(int8_t n)
 		case BIN:
 			if (n <= 1)
 				new_value = (current * 0b10) + n;
+			break;
+	}
+
+	switch (size) {
+		case 1:
+			if (new_value >= INT8_MIN && new_value <= INT8_MAX)
+				current = new_value;
+			break;
+		case 2:
+			if (new_value >= INT16_MIN && new_value <= INT16_MAX)
+				current = new_value;
+			break;
+		case 4:
+			if (new_value >= INT32_MIN && new_value <= INT32_MAX)
+				current = new_value;
+			break;
+		case 8:
+			current = new_value;
 			break;
 	}
 }
@@ -105,8 +123,9 @@ static void change_size(void)
 		case 8: size = 4; break;
 		case 4: size = 2; break;
 		case 2: size = 1; break;
-		case 1: size = 8; sign = !sign; break;
+		case 1: size = 8; break;
 	}
+	current = 0;
 }
 
 void interface_key_pressed(int8_t key)
@@ -132,6 +151,7 @@ void interface_key_pressed(int8_t key)
 		case K_MODE: change_mode(); break;
 		case K_SZ:   change_size(); break;
 		case K_FUN:  function = !function; break;
+		case K_CLR:  current = 0; break;
 	}
 }
 
@@ -149,9 +169,22 @@ void interface_display(char line[2][16])
 		v /= 10;
 	}
 
-	if ((current >> 32) != 0)
-		snprintf(line[1], 8, " %6lX", (uint32_t) (current >> 32));
-	snprintf(&line[1][7], 10, "%8lXh", (uint32_t) (current & 0xffffffff));
+	switch (size) {
+		case 1:
+			snprintf(&line[1][13], 8, "%2Xh", (uint8_t) current);
+			break;
+		case 2:
+			snprintf(&line[1][11], 6, "%4Xh", (uint16_t) current);
+			break;
+		case 4:
+			snprintf(&line[1][7], 10, "%8lXh", (uint32_t) current);
+			break;
+		case 8:
+			if ((current >> 32) != 0)
+				snprintf(line[1], 8, " %6lX", (uint32_t) (current >> 32));
+			snprintf(&line[1][7], 10, "%8lXh", (uint32_t) current);
+			break;
+	}
 
 	if (function)
 		line[0][0] = 'f';
@@ -160,9 +193,8 @@ void interface_display(char line[2][16])
 		case 1: line[1][0] = 'b'; break;
 		case 2: line[1][0] = 'w'; break;
 		case 4: line[1][0] = 'd'; break;
-		case 8: line[1][0] = 'q'; break;
+		case 8: line[1][0] = ' '; break;
 	}
-	line[1][1] = sign ? 0b11101001 : ' ';  // (-1 character)
 }
 
 int64_t interface_value(void)
