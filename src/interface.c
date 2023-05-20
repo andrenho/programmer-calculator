@@ -54,6 +54,24 @@ typedef enum Key {
 	K_ROR    = 29,
 } Key;
 
+enum Operation {
+	O_ADD,
+	O_SUB,
+	O_MUL,
+	O_DIV,
+	O_AND,
+	O_OR,
+	O_XOR,
+	O_MOD,
+	O_SHL,
+	O_SHR,
+	O_ROL,
+	O_ROR,
+	O_NAND,
+	O_NOR,
+	O_XNOR,
+} Operation;
+
 static int64_t reg = 0;
 static int64_t current = 0;
 static int64_t memory = 0;
