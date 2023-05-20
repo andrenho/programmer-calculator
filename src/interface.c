@@ -54,7 +54,8 @@ typedef enum Key {
 	K_ROR    = 29,
 } Key;
 
-enum Operation {
+typedef enum Operation {
+	O_NOP,
 	O_ADD,
 	O_SUB,
 	O_MUL,
@@ -72,12 +73,14 @@ enum Operation {
 	O_XNOR,
 } Operation;
 
-static int64_t reg = 0;
-static int64_t current = 0;
-static int64_t memory = 0;
-static Mode    mode = DEC;
-static bool    function = false;
-static uint8_t size = 8;
+static int64_t   reg = 0;
+static int64_t   current = 0;
+static int64_t   memory = 0;
+static Mode      mode = DEC;
+static bool      function = false;
+static uint8_t   size = 8;
+static Operation operation = O_NOP;
+static bool      reset_display = false;
 
 static const int64_t max_value = 999999999999999;
 
@@ -87,6 +90,11 @@ void interface_init(void)
 
 static void add_digit(int8_t n)
 {
+	if (reset_display) {
+		current = 0;
+		reset_display = false;
+	}
+
 	int64_t new_value = current;
 
 	switch (mode) {
@@ -151,6 +159,12 @@ static void change_size(void)
 	current = 0;
 }
 
+static void add_operation(Operation op)
+{
+	operation = op;
+	reset_display = true;
+}
+
 void interface_key_pressed(int8_t key)
 {
 	if (!function) {
@@ -176,6 +190,7 @@ void interface_key_pressed(int8_t key)
 			case K_CLR:  current = 0; break;
 			case K_NOT:  current = ~current; break;
 			case K_SIGN: current = -current; break;
+			case K_PLUS: add_operation(O_ADD); break;
 		}
 	} else if (function) {
 		switch ((Key) key) {
@@ -231,12 +246,31 @@ void interface_display(char line[2][16])
 	if (function)
 		line[0][0] = 'f';
 
+	switch (operation) {
+		case O_ADD:  line[0][0] = '+'; break;
+		case O_SUB:  line[0][0] = '-'; break;
+		case O_MUL:  line[0][0] = 'x'; break;
+		case O_DIV:  line[0][0] = 0b11111101; break;
+		case O_AND:  line[0][0] = '&'; break;
+		case O_OR:   line[0][0] = '|'; break;
+		case O_XOR:  line[0][0] = '^'; break;
+		case O_MOD:  line[0][0] = '%'; break;
+		case O_SHL:  line[0][0] = '<'; break;
+		case O_SHR:  line[0][0] = '>'; break;
+		case O_ROL:  line[0][0] = 0b01111111; break;
+		case O_ROR:  line[0][0] = 0b01111110; break;
+		case O_NAND: line[0][0] = '!'; break;
+		case O_NOR:  line[0][0] = 0b11001110; break;
+		case O_XNOR: line[0][0] = 0b10010111; break;
+	}
+
 	switch (size) {
 		case 1: line[1][0] = 'b'; break;
 		case 2: line[1][0] = 'w'; break;
 		case 4: line[1][0] = 'd'; break;
 		case 8: line[1][0] = ' '; break;
 	}
+
 }
 
 int64_t interface_value(void)
