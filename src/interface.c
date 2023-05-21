@@ -306,8 +306,8 @@ void interface_display(char line[2][16])
 		case S_DWORD: line[1][0] = 'd'; break;
 		case S_QWORD: line[1][0] = ' '; break;
 	}
-    if (signed_)
-        line[1][1] = 0b11101001;
+    if (!signed_)
+        line[1][1] = 0b11101111;
 }
 
 int64_t interface_value(void)

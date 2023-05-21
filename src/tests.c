@@ -12,8 +12,12 @@ static void assert_calc(Key keys[], size_t n, int64_t expected_value, char line1
 
     char line[2][16];
     interface_display(line);
-    assert(strncmp(line[0], line1, 16) == 0);
-    assert(strncmp(line[1], line2, 16) == 0);
+    for (size_t i = 0; i < 16; ++i) {
+        if (line1[i] != '?')
+            assert(line[0][i] == line1[i]);
+        if (line2[i] != '?')
+            assert(line[1][i] == line2[i]);
+    }
 }
 
 static void assert_value(Key keys[], size_t n, int64_t expected_value)
@@ -29,7 +33,6 @@ static void assert_value(Key keys[], size_t n, int64_t expected_value)
 
 int main()
 {
-#if 0
     //
     // adding keys: value vs display
     //
@@ -96,13 +99,32 @@ int main()
     // 8-bit unsigned
     ASSERT_VALUE(200, K_SZ, K_SZ, K_SZ, K_FUN, K_SIGNED, K_2, K_0, K_0);
     ASSERT_VALUE(200, K_SZ, K_SZ, K_SZ, K_FUN, K_SIGNED, K_2, K_0, K_0, K_0);
-#endif
 
-    // change signedness
+    // change sign
     ASSERT_CALC(-20,
                 "             -20",
-                "  FFFFFFFFFFFECh",
+                " FFFFFFFFFFFFECh",
                 K_2, K_0, K_SIGN);
+    ASSERT_CALC(-20,
+                "             -20",
+                "w          FFECh",
+                K_SZ, K_SZ, K_2, K_0, K_SIGN);
+    ASSERT_CALC(-20,
+                "             -20",
+                "b            ECh",
+                K_SZ, K_SZ, K_SZ, K_2, K_0, K_SIGN);
+
+    // change signedness
+    ASSERT_CALC(20,
+                "              20",
+                "             14h",
+                K_2, K_0, K_FUN, K_SIGN);
+    /*
+    ASSERT_CALC(-20,
+                "             236",
+                "b            ECh",
+                K_SZ, K_SZ, K_SZ, K_2, K_0, K_SIGN, K_FUN, K_SIGNED);
+    */
 
     // TODO - change size
 
