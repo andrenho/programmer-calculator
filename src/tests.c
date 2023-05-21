@@ -16,21 +16,81 @@ static void assert_calc(Key keys[], size_t n, int64_t expected_value, char line1
     assert(strncmp(line[1], line2, 16) == 0);
 }
 
-#define ASSERT_CALC(a, b, c, ...) assert_calc((Key[]) { __VA_ARGS__ }, sizeof((Key[]) { __VA_ARGS__ }) / sizeof(Key), a, b, c)
+static void assert_value(Key keys[], size_t n, int64_t expected_value)
+{
+    interface_init();
+    for (size_t i = 0; i < n; ++i)
+        interface_key_pressed(keys[i]);
+    assert(interface_value() == expected_value);
+}
+
+#define ASSERT_CALC(expected_value, line1, line2, ...) assert_calc((Key[]) { __VA_ARGS__ }, sizeof((Key[]) { __VA_ARGS__ }) / sizeof(Key), expected_value, line1, line2);
+#define ASSERT_VALUE(expected_value, ...) assert_value((Key[]) { __VA_ARGS__ }, sizeof((Key[]) { __VA_ARGS__ }) / sizeof(Key), expected_value);
 
 int main()
 {
-    // TODO - adding keys: value vs display
-    ASSERT_CALC(0, "               0",
-                   "              0h", K_0);
-    ASSERT_CALC(0, "               1",
-                   "              1h", K_1);
+    //
+    // adding keys: value vs display
+    //
+    ASSERT_CALC(0,
+                "               0",
+                "              0h",
+                K_0);
+    ASSERT_CALC(1,
+                "               1",
+                "              1h",
+                K_1);
+    ASSERT_CALC(1,
+                "               1",
+                "              1h",
+                K_1, K_A);
+    ASSERT_CALC(123,
+                "             123",
+                "             7Bh",
+                K_1, K_2, K_3);
+    ASSERT_CALC(123456789012345,
+                " 123456789012345",
+                "   7048860DDF79h",
+                K_1, K_2, K_3, K_4, K_5, K_6, K_7, K_8, K_9, K_0, K_1, K_2, K_3, K_4, K_5);
+    // over the limit
+    ASSERT_CALC(123456789012345,
+                " 123456789012345",
+                "   7048860DDF79h",
+                K_1, K_2, K_3, K_4, K_5, K_6, K_7, K_8, K_9, K_0, K_1, K_2, K_3, K_4, K_5, K_6);
 
-    // TODO - backspace key
+    //
+    // backspace key
+    //
+    ASSERT_CALC(1,
+                "               1",
+                "              1h",
+                K_1, K_2, K_3, K_BS, K_BS);
+    ASSERT_CALC(0,
+                "               0",
+                "              0h",
+                K_1, K_BS, K_BS);
 
-    // TODO - adding keys with different modes
+    //
+    // adding keys with different modes
+    //
 
-    // TODO - adding keys with different sizes
+    // hex
+    ASSERT_CALC(2748,
+                "            2748",
+                "            ABCh",
+                K_MODE, K_A, K_B, K_C);
+    // bin
+    ASSERT_CALC(5,
+                "               5",
+                "              5h",
+                K_MODE, K_MODE, K_1, K_0, K_1, K_2);
+
+    //
+    // adding keys with different sizes
+    //
+
+    // signed
+    ASSERT_VALUE(20, K_SZ, K_SZ, K_SZ, K_2, K_0, K_0);
 
     // TODO - change sign
 

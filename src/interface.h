@@ -51,11 +51,12 @@ typedef enum Key {
     K_MC     = 24,
     K_ROL    = 25,
     K_XNOR   = 26,
+    K_SIGNED = 28,
     K_ROR    = 29,
 } Key;
 
 typedef enum Size {
-    S_BYTE, S_WORD, S_DWORD, S_UNLIMITED,
+    S_BYTE, S_WORD, S_DWORD, S_QWORD,
 } Size;
 
 void    interface_init(void);
