@@ -29,6 +29,7 @@ static void assert_value(Key keys[], size_t n, int64_t expected_value)
 
 int main()
 {
+#if 0
     //
     // adding keys: value vs display
     //
@@ -89,10 +90,21 @@ int main()
     // adding keys with different sizes
     //
 
-    // signed
+    // 8-bit signed
     ASSERT_VALUE(20, K_SZ, K_SZ, K_SZ, K_2, K_0, K_0);
 
-    // TODO - change sign
+    // 8-bit unsigned
+    ASSERT_VALUE(200, K_SZ, K_SZ, K_SZ, K_FUN, K_SIGNED, K_2, K_0, K_0);
+    ASSERT_VALUE(200, K_SZ, K_SZ, K_SZ, K_FUN, K_SIGNED, K_2, K_0, K_0, K_0);
+#endif
+
+    // change signedness
+    ASSERT_CALC(-20,
+                "             -20",
+                "  FFFFFFFFFFFECh",
+                K_2, K_0, K_SIGN);
+
+    // TODO - change size
 
     // TODO - NOT
 

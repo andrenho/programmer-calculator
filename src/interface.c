@@ -72,24 +72,40 @@ static void add_digit(int8_t n)
 			break;
 	}
 
-	switch (size) {
-		case S_BYTE:
-			if (new_value >= INT8_MIN && new_value <= INT8_MAX)
-				current = new_value;
-			break;
-		case S_WORD:
-			if (new_value >= INT16_MIN && new_value <= INT16_MAX)
-				current = new_value;
-			break;
-		case S_DWORD:
-			if (new_value >= INT32_MIN && new_value <= INT32_MAX)
-				current = new_value;
-			break;
-		case S_QWORD:
-			if (new_value >= -max_value && new_value <= max_value)
-				current = new_value;
-			break;
-	}
+    if (signed_) {
+        switch (size) {
+            case S_BYTE:
+                if (new_value >= INT8_MIN && new_value <= INT8_MAX)
+                    current = new_value;
+                break;
+            case S_WORD:
+                if (new_value >= INT16_MIN && new_value <= INT16_MAX)
+                    current = new_value;
+                break;
+            case S_DWORD:
+                if (new_value >= INT32_MIN && new_value <= INT32_MAX)
+                    current = new_value;
+                break;
+        }
+    } else {
+        switch (size) {
+            case S_BYTE:
+                if (new_value >= 0 && new_value <= UINT8_MAX)
+                    current = new_value;
+                break;
+            case S_WORD:
+                if (new_value >= 0 && new_value <= UINT16_MAX)
+                    current = new_value;
+                break;
+            case S_DWORD:
+                if (new_value >= 0 && new_value <= UINT32_MAX)
+                    current = new_value;
+                break;
+        }
+    }
+
+    if (size == S_QWORD && new_value >= -max_value && new_value <= max_value)
+        current = new_value;
 }
 
 static void backspace(void)
@@ -202,16 +218,17 @@ void interface_key_pressed(int8_t key)
 		}
 	} else if (function) {
 		switch ((Key) key) {
-			case K_M: memory += current; function = false; break;
-			case K_MR: current = memory; function = false; break;
-			case K_MC: memory= 0; function = false; break;
-			case K_LSH:   add_operation(O_LSH); break;
-			case K_RSH:   add_operation(O_RSH); break;
-			case K_ROL:   add_operation(O_ROL); break;
-			case K_ROR:   add_operation(O_ROR); break;
-			case K_NAND:  add_operation(O_NAND); break;
-			case K_NOR:   add_operation(O_NOR); break;
-			case K_XNOR:  add_operation(O_XNOR); break;
+			case K_M:      memory += current; function = false; break;
+			case K_MR:     current = memory; function = false; break;
+			case K_MC:     memory= 0; function = false; break;
+			case K_LSH:    add_operation(O_LSH); break;
+			case K_RSH:    add_operation(O_RSH); break;
+			case K_ROL:    add_operation(O_ROL); break;
+			case K_ROR:    add_operation(O_ROR); break;
+			case K_NAND:   add_operation(O_NAND); break;
+			case K_NOR:    add_operation(O_NOR); break;
+			case K_XNOR:   add_operation(O_XNOR); break;
+            case K_SIGNED: signed_ = !signed_; break;
 			default: break;
 		}
 		function = false;
@@ -289,7 +306,8 @@ void interface_display(char line[2][16])
 		case S_DWORD: line[1][0] = 'd'; break;
 		case S_QWORD: line[1][0] = ' '; break;
 	}
-
+    if (signed_)
+        line[1][1] = 0b11101001;
 }
 
 int64_t interface_value(void)
