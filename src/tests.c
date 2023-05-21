@@ -3,10 +3,10 @@
 #include <assert.h>
 #include <string.h>
 
-static void assert_calc(Key keys[], size_t n_keys, int64_t expected_value, char line1[], char line2[])
+static void assert_calc(Key keys[], size_t n, int64_t expected_value, char line1[], char line2[])
 {
     interface_init();
-    for (size_t i = 0; i < n_keys; ++i)
+    for (size_t i = 0; i < n; ++i)
         interface_key_pressed(keys[i]);
     assert(interface_value() == expected_value);
 
@@ -15,15 +15,16 @@ static void assert_calc(Key keys[], size_t n_keys, int64_t expected_value, char 
     assert(strncmp(line[0], line1, 16) == 0);
     assert(strncmp(line[1], line2, 16) == 0);
 }
-#define COUNT_OF(x) ((sizeof(x)/sizeof(0[x])) / ((size_t)(!(sizeof(x) % sizeof(0[x])))))
-#define ASSERT_CALC(keys, expected_value, line1, line2) {assert_calc((Key[]) keys, COUNT_OF((Key[]) keys), expected_value, line1, line2);}
+
+#define ASSERT_CALC(a, b, c, ...) assert_calc((Key[]) { __VA_ARGS__ }, sizeof((Key[]) { __VA_ARGS__ }) / sizeof(Key), a, b, c)
 
 int main()
 {
     // TODO - adding keys: value vs display
-    ASSERT_CALC({ K_0 }, 0,
-                "               0",
-                "              0h");
+    ASSERT_CALC(0, "               0",
+                   "              0h", K_0);
+    ASSERT_CALC(0, "               1",
+                   "              1h", K_1);
 
     // TODO - backspace key
 

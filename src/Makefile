@@ -45,7 +45,7 @@ ${PROJECT}.elf: ${OBJECTS}
 	avr-size -C --mcu=${MCU_GCC} ${PROJECT}.elf
 
 progcalc_test: tests.c interface.c interface.h
-	gcc -o -ggdb -O0 -Wall -Wextra tests.c interface.c -o $@
+	gcc -o -g -ggdb -O0 -Wall -Wextra tests.c interface.c -o $@
 
 test: progcalc_test
 	./$@
