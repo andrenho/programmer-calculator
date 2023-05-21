@@ -42,7 +42,13 @@ ${PROJECT}.hex: ${PROJECT}.elf
 
 ${PROJECT}.elf: ${OBJECTS}
 	$(CC) -mmcu=${MCU_GCC} -o $@ $^ -Wl,--gc-sections
-	avr-size -C --mcu=${MCU_GCC} ${PROJECT}.elf	
+	avr-size -C --mcu=${MCU_GCC} ${PROJECT}.elf
+
+progcalc_test: tests.c interface.c interface.h
+	gcc -o -ggdb -O0 -Wall -Wextra tests.c interface.c -o $@
+
+test: progcalc_test
+	./$@
 
 test-connection:
 	sudo avrdude ${AVRDUDE_FLAGS}
