@@ -247,16 +247,32 @@ void interface_display(char line[2][16])
 	memset(line[1], ' ', 16);
 	line[0][15] = '0';
 
-	int64_t v = current % max_value;
-    if (v < 0) v = -v;
-	uint8_t pos = 15;
-	while (v != 0) {
-		int m = v % 10;
-		line[0][pos--] = m + '0';
-		v /= 10;
-	}
-	if (current < 0)
-		line[0][pos] = '-';
+    if (signed_) {
+        int64_t v = current % max_value;
+        if (v < 0) v = -v;
+        uint8_t pos = 15;
+        while (v != 0) {
+            int m = v % 10;
+            line[0][pos--] = m + '0';
+            v /= 10;
+        }
+        if (current < 0)
+            line[0][pos] = '-';
+    } else {
+        uint64_t v = current % max_value;
+        switch (size) {
+            case S_BYTE: v = (uint8_t) v; break;
+            case S_WORD: v = (uint16_t) v; break;
+            case S_DWORD: v = (uint32_t) v; break;
+            case S_QWORD: v = (uint64_t) v; break;
+        }
+        uint8_t pos = 15;
+        while (v != 0) {
+            int m = v % 10;
+            line[0][pos--] = m + '0';
+            v /= 10;
+        }
+    }
 
 	switch (size) {
 		case S_BYTE:

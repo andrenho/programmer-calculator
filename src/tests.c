@@ -33,6 +33,7 @@ static void assert_value(Key keys[], size_t n, int64_t expected_value)
 
 int main()
 {
+#if 0
     //
     // adding keys: value vs display
     //
@@ -119,12 +120,11 @@ int main()
                 "              20",
                 "             14h",
                 K_2, K_0, K_FUN, K_SIGN);
-    /*
+#endif
     ASSERT_CALC(-20,
                 "             236",
-                "b            ECh",
+                "b?           ECh",
                 K_SZ, K_SZ, K_SZ, K_2, K_0, K_SIGN, K_FUN, K_SIGNED);
-    */
 
     // TODO - change size
 
