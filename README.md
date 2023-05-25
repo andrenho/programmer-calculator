@@ -1,6 +1,6 @@
 # Programmer Calculator
 
-A calculator that provides functions useful for programmers.
+A calculator that provides useful functionality for programmers.
 
 ![image](https://github.com/andrenho/programmer-calculator/assets/84652/fc37ad6c-d010-4205-9758-49c4ab1f2948)
 
