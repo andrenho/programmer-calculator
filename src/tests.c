@@ -33,9 +33,6 @@ static void assert_value(Key keys[], size_t n, int64_t expected_value)
 
 int main()
 {
-#if 0
-#endif
-
     //
     // adding keys: value vs display
     //
@@ -131,13 +128,31 @@ int main()
                 "w?         FFECh",
                 K_SZ, K_SZ, K_2, K_0, K_SIGN, K_FUN, K_SIGNED);
 
-    // TODO - change size
+    // NOT
+    ASSERT_CALC(-21,
+                "             -21",
+                " FFFFFFFFFFFFEBh",
+                K_2, K_0, K_NOT);
+    ASSERT_CALC(-21,
+                "             -21",
+                "w          FFEBh",
+                K_SZ, K_SZ, K_2, K_0, K_NOT);
+    ASSERT_CALC(-21,
+                "           65515",
+                "w?         FFEBh",
+                K_SZ, K_SZ, K_2, K_0, K_NOT, K_FUN, K_SIGNED);
 
-    // TODO - NOT
+    // operations
+    ASSERT_VALUE(5,
+                K_2, K_PLUS, K_3, K_PLUS);
+    ASSERT_VALUE(7,
+                 K_2, K_PLUS, K_3, K_PLUS, K_2, K_EQUALS);
 
-    // TODO - operations
-
-    // TODO - operations with different sizes
+    // operations with different sizes
+    ASSERT_CALC(-56,
+                "             -56",
+                "b            C8h",
+                K_SZ, K_SZ, K_SZ, K_1, K_0, K_0, K_PLUS, K_1, K_0, K_0, K_EQUALS);
 
     // TODO - ROL/ROR with different sizes
 }

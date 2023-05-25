@@ -136,44 +136,42 @@ static void change_size(void)
 	current = 0;
 }
 
-static int64_t limit_value(int64_t value)
-{
-	switch (size) {
-		case S_BYTE:  return value & 0xff;
-		case S_WORD:  return value & 0xffff;
-		case S_DWORD: return value & 0xffffffff;
-		case S_QWORD: return value % max_value;
-	}
-    return 0;
-}
-
 static int64_t execute_last_operation(void)
 {
+    int64_t new_value = current;
+
 	switch (operation) {
-		case O_NOP:  return current;
-		case O_ADD:  return reg + current;
-		case O_SUB:  return reg - current;
-		case O_MUL:  return reg * current;
-		case O_DIV:  return reg / current;
-		case O_AND:  return reg & current;
-		case O_OR:   return reg | current;
-		case O_XOR:  return reg ^ current;
-		case O_MOD:  return reg % current;
-		case O_LSH:  return reg << current;
-		case O_RSH:  return reg >> current;
-		case O_ROL:  return 0; // TODO
-		case O_ROR:  return 0; // TODO
-		case O_NAND: return ~(reg & current);
-		case O_NOR:  return ~(reg | current);
-		case O_XNOR: return ~(reg ^ current);
+		case O_NOP:  new_value = current; break;
+		case O_ADD:  new_value = reg + current; break;
+		case O_SUB:  new_value = reg - current; break;
+		case O_MUL:  new_value = reg * current; break;
+		case O_DIV:  new_value = reg / current; break;
+		case O_AND:  new_value = reg & current; break;
+		case O_OR:   new_value = reg | current; break;
+		case O_XOR:  new_value = reg ^ current; break;
+		case O_MOD:  new_value = reg % current; break;
+		case O_LSH:  new_value = reg << current; break;
+		case O_RSH:  new_value = reg >> current; break;
+		case O_ROL:  new_value = 0; break; // TODO
+		case O_ROR:  new_value = 0; break; // TODO
+		case O_NAND: new_value = ~(reg & current); break;
+		case O_NOR:  new_value = ~(reg | current); break;
+		case O_XNOR: new_value = ~(reg ^ current); break;
 	}
+
+    switch (size) {
+        case S_BYTE: current = (int8_t) new_value; break;
+        case S_WORD: current = (int16_t) new_value; break;
+        case S_DWORD: current = (int32_t) new_value; break;
+        default: current = new_value;
+    }
 
     return current;
 }
 
 static void add_operation(Operation op)
 {
-	reg = limit_value(execute_last_operation());
+	reg = execute_last_operation();
 	current = reg;
 	operation = op;
 	reset_display = true;
