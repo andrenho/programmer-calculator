@@ -17,8 +17,6 @@ typedef enum Operation {
 	O_MOD,
 	O_LSH,
 	O_RSH,
-	O_ROL,
-	O_ROR,
 	O_NAND,
 	O_NOR,
 	O_XNOR,
@@ -33,6 +31,7 @@ static uint8_t   size = S_QWORD;
 static bool      signed_ = true;
 static Operation operation = O_NOP;
 static bool      reset_display = false;
+static bool      in_error = false;
 
 static const int64_t max_value = 999999999999999;
 
@@ -47,6 +46,7 @@ void interface_init(void)
     signed_ = true;
     operation = O_NOP;
     reset_display = false;
+    in_error = false;
 }
 
 static void add_digit(int8_t n)
@@ -140,6 +140,11 @@ static int64_t execute_last_operation(void)
 {
     int64_t new_value = current;
 
+    if ((operation == O_DIV || operation == O_MOD) && current == 0) {
+        in_error = true;
+        return 0;
+    }
+
 	switch (operation) {
 		case O_NOP:  new_value = current; break;
 		case O_ADD:  new_value = reg + current; break;
@@ -152,8 +157,6 @@ static int64_t execute_last_operation(void)
 		case O_MOD:  new_value = reg % current; break;
 		case O_LSH:  new_value = reg << current; break;
 		case O_RSH:  new_value = reg >> current; break;
-		case O_ROL:  new_value = 0; break; // TODO
-		case O_ROR:  new_value = 0; break; // TODO
 		case O_NAND: new_value = ~(reg & current); break;
 		case O_NOR:  new_value = ~(reg | current); break;
 		case O_XNOR: new_value = ~(reg ^ current); break;
@@ -179,6 +182,10 @@ static void add_operation(Operation op)
 
 void interface_key_pressed(int8_t key)
 {
+    if (in_error && key != K_CLR) {
+        return;
+    }
+
 	if (!function) {
 		switch ((Key) key) {
 			case K_0:      add_digit(0); break;
@@ -199,7 +206,7 @@ void interface_key_pressed(int8_t key)
 			case K_F:      add_digit(0xf); break;
 			case K_BS:     backspace(); break;
 			case K_SZ:     change_size(); break;
-			case K_CLR:    current = 0; operation = O_NOP; break;
+			case K_CLR:    current = 0; operation = O_NOP; in_error = false; break;
 			case K_NOT:    current = ~current; break;
 			case K_SIGN:   current = -current; break;
 			case K_PLUS:   add_operation(O_ADD); break;
@@ -221,8 +228,6 @@ void interface_key_pressed(int8_t key)
 			case K_MC:     memory= 0; function = false; break;
 			case K_LSH:    add_operation(O_LSH); break;
 			case K_RSH:    add_operation(O_RSH); break;
-			case K_ROL:    add_operation(O_ROL); break;
-			case K_ROR:    add_operation(O_ROR); break;
 			case K_NAND:   add_operation(O_NAND); break;
 			case K_NOR:    add_operation(O_NOR); break;
 			case K_XNOR:   add_operation(O_XNOR); break;
@@ -243,7 +248,14 @@ void interface_display(char line[2][16])
 {
 	memset(line[0], ' ', 16);
 	memset(line[1], ' ', 16);
-	line[0][15] = '0';
+
+    if (in_error) {
+        memcpy(line[0], "Error: division ", 16);
+        memcpy(line[1], "by ZERO!        ", 16);
+        return;
+    }
+
+    line[0][15] = '0';
 
     if (signed_) {
         int64_t v = current % max_value;
@@ -304,8 +316,6 @@ void interface_display(char line[2][16])
 		case O_MOD:  line[0][0] = '%'; break;
 		case O_LSH:  line[0][0] = '<'; break;
 		case O_RSH:  line[0][0] = '>'; break;
-		case O_ROL:  line[0][0] = 0b01111111; break;
-		case O_ROR:  line[0][0] = 0b01111110; break;
 		case O_NAND: line[0][0] = '!'; break;
 		case O_NOR:  line[0][0] = 0b11001110; break;
 		case O_XNOR: line[0][0] = 0b10110111; break;

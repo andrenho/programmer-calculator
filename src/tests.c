@@ -143,10 +143,8 @@ int main()
                 K_SZ, K_SZ, K_2, K_0, K_NOT, K_FUN, K_SIGNED);
 
     // operations
-    ASSERT_VALUE(5,
-                K_2, K_PLUS, K_3, K_PLUS);
-    ASSERT_VALUE(7,
-                 K_2, K_PLUS, K_3, K_PLUS, K_2, K_EQUALS);
+    ASSERT_VALUE(5, K_2, K_PLUS, K_3, K_PLUS);
+    ASSERT_VALUE(7, K_2, K_PLUS, K_3, K_PLUS, K_2, K_EQUALS);
 
     // operations with different sizes
     ASSERT_CALC(-56,
@@ -154,5 +152,9 @@ int main()
                 "b            C8h",
                 K_SZ, K_SZ, K_SZ, K_1, K_0, K_0, K_PLUS, K_1, K_0, K_0, K_EQUALS);
 
-    // TODO - ROL/ROR with different sizes
+    // divide by zero
+    ASSERT_CALC(0,
+                "Error: division ",
+                "by ZERO!        ",
+                 K_5, K_DIV, K_0, K_EQUALS);
 }
